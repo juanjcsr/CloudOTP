@@ -105,24 +105,28 @@ public class MainActivity extends Activity implements OnMenuItemClickListener {
         menu.findItem(R.id.action_scan).setOnMenuItemClickListener(this);
         menu.findItem(R.id.action_add).setOnMenuItemClickListener(this);
         menu.findItem(R.id.action_about).setOnMenuItemClickListener(this);
+        menu.findItem(R.id.action_dropbox).setOnMenuItemClickListener(this);
         return true;
     }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.action_scan:
-            startActivity(new Intent(this, ScanActivity.class));
-            overridePendingTransition(R.anim.fadein, R.anim.fadeout);
-            return true;
+            case R.id.action_scan:
+                startActivity(new Intent(this, ScanActivity.class));
+                overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+                return true;
 
-        case R.id.action_add:
-            startActivity(new Intent(this, AddActivity.class));
-            return true;
+            case R.id.action_add:
+                startActivity(new Intent(this, AddActivity.class));
+                return true;
 
-        case R.id.action_about:
-            startActivity(new Intent(this, AboutActivity.class));
-            return true;
+            case R.id.action_about:
+                startActivity(new Intent(this, AboutActivity.class));
+                return true;
+
+            case R.id.action_dropbox:
+                return true;
         }
 
         return false;
