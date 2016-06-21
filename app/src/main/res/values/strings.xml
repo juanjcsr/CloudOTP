@@ -44,4 +44,8 @@
         <item>SHA256</item>
         <item>SHA512</item>
     </string-array>
+
+    <string name="DB_APP_KEY">gb8ul3ds6h6icu0</string>
+    <string name="title_activity_dropbox">DropboxActivity</string>
+    <string name="dropbox_sign_in">Login w/ DropBox</string>
 </resources>

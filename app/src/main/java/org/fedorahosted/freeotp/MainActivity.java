@@ -126,6 +126,7 @@ public class MainActivity extends Activity implements OnMenuItemClickListener {
                 return true;
 
             case R.id.action_dropbox:
+                startActivity(new Intent(this, DropboxManagerActivity.class));
                 return true;
         }
 
