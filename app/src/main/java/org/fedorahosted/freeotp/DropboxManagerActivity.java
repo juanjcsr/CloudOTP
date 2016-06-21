@@ -12,21 +12,22 @@ import android.widget.TextView;
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.users.FullAccount;
 
+import org.fedorahosted.freeotp.config.AccessTokenRetriever;
 import org.fedorahosted.freeotp.external.DropboxClient;
 import org.fedorahosted.freeotp.external.DropboxUserAccountTask;
 
 public class DropboxManagerActivity extends Activity {
 
-    private static String NAME = "cloud_providers";
-    private static String DBSTORAGE = "db-access-token";
-    private String storedToken;
     private TextView loginData;
     private String ACCESS_TOKEN;
+    private AccessTokenRetriever tokenManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dropbox);
+
+        tokenManager = new AccessTokenRetriever(getApplicationContext());
 
         loginData = (TextView) findViewById(R.id.current_user_label);
 
@@ -47,19 +48,16 @@ public class DropboxManagerActivity extends Activity {
 
     public void getAccessToken() {
 
-        String accessToken = Auth.getOAuth2Token();
-        SharedPreferences prefs = getSharedPreferences(NAME, Context.MODE_PRIVATE);
-        storedToken = prefs.getString("db-access-token", "-");
-        if (accessToken != null && storedToken.contentEquals("-")) {
-
-            prefs.edit().putString("db-access-token", accessToken).apply();
-            ACCESS_TOKEN = accessToken;
+        if (tokenManager.dbTokenExists()) {
+            ACCESS_TOKEN = tokenManager.retrieveDbAccessToken();
             getDropboxUserAccount();
-            //go to main Activity
-
         } else {
-            ACCESS_TOKEN = storedToken;
-            getDropboxUserAccount();
+            String accessToken = Auth.getOAuth2Token();
+            if ( accessToken != null ){
+                tokenManager.setDbAccessToken(accessToken);
+                ACCESS_TOKEN =accessToken;
+                getDropboxUserAccount();
+            }
         }
     }
 
@@ -84,27 +82,5 @@ public class DropboxManagerActivity extends Activity {
     }
 
 
-    private boolean dbTokenExists() {
-        SharedPreferences prefs = getSharedPreferences(NAME, Context.MODE_PRIVATE);
-        String accessToken = prefs.getString(DBSTORAGE, null);
-        return accessToken != null;
-    }
-
-    private String retrieveDbAccessToken() {
-        SharedPreferences prefs = getSharedPreferences(NAME, Context.MODE_PRIVATE);
-        String accessToken = prefs.getString(DBSTORAGE, null);
-        if (accessToken == null ) {
-            Log.d("DB Access Token Status", "No Token found");
-            return null;
-        } else {
-            Log.d("DB Access Token Status", "Token found");
-            return accessToken;
-        }
-    }
-
-    private void setDbAccessToken(String theToken) {
-        SharedPreferences prefs = getSharedPreferences(NAME, Context.MODE_PRIVATE);
-        prefs.edit().putString(DBSTORAGE, theToken).apply();
-    }
 
 }
