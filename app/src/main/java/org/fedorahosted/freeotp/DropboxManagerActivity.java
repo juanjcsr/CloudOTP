@@ -11,16 +11,25 @@ import android.widget.TextView;
 
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.users.FullAccount;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.fedorahosted.freeotp.config.AccessTokenRetriever;
 import org.fedorahosted.freeotp.external.DropboxClient;
 import org.fedorahosted.freeotp.external.DropboxUserAccountTask;
+
+import java.io.File;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
+import java.util.HashMap;
 
 public class DropboxManagerActivity extends Activity {
 
     private TextView loginData;
     private String ACCESS_TOKEN;
     private AccessTokenRetriever tokenManager;
+    private Button mSyncButton;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +39,9 @@ public class DropboxManagerActivity extends Activity {
         tokenManager = new AccessTokenRetriever(getApplicationContext());
 
         loginData = (TextView) findViewById(R.id.current_user_label);
+
+        mSyncButton = (Button) findViewById(R.id.sync_token_button);
+        mSyncButton.setOnClickListener(mSyncButtonListener);
 
         Button loginButton = (Button) findViewById(R.id.sign_in_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +72,24 @@ public class DropboxManagerActivity extends Activity {
             }
         }
     }
+
+    private View.OnClickListener mSyncButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Log.d("Clicked", "Inside");
+            prefs = getApplicationContext().getSharedPreferences("tokens", Context.MODE_PRIVATE);
+            HashMap tokens = (HashMap) prefs.getAll();
+            Log.d("Tokens", Integer.toString(tokens.size()));
+            Gson gson = new Gson();
+            Type hashmapStringType = new TypeToken<HashMap<String, String>>(){}.getType();
+            String json = gson.toJson(tokens, hashmapStringType);
+            Log.d("JSON", json);
+            HashMap back = gson.fromJson(json, hashmapStringType);
+            Log.d("MAP", "BACK");
+
+
+        }
+    };
 
     protected void getDropboxUserAccount() {
         if (ACCESS_TOKEN == null) return;
