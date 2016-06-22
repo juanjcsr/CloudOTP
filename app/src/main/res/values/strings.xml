@@ -49,4 +49,9 @@
     <string name="title_activity_dropbox">DropboxActivity</string>
     <string name="dropbox_sign_in">Login w/ DropBox</string>
     <string name="sync_token_text">Sync Tokens</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="typePassword">Write your DB password</string>
+    <string name="dismiss_button_label">Ok</string>
 </resources>

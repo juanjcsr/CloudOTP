@@ -1,5 +1,7 @@
 package org.fedorahosted.freeotp;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.users.FullAccount;
@@ -16,6 +19,7 @@ import com.google.gson.reflect.TypeToken;
 
 import org.fedorahosted.freeotp.config.AccessTokenRetriever;
 import org.fedorahosted.freeotp.external.DropboxClient;
+import org.fedorahosted.freeotp.external.DropboxPasswordFragment;
 import org.fedorahosted.freeotp.external.DropboxUserAccountTask;
 
 import java.io.File;
@@ -23,7 +27,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
-public class DropboxManagerActivity extends Activity {
+public class DropboxManagerActivity extends Activity implements DropboxPasswordFragment.DropboxFilePasswordListener {
 
     private TextView loginData;
     private String ACCESS_TOKEN;
@@ -88,6 +92,11 @@ public class DropboxManagerActivity extends Activity {
             Log.d("MAP", "BACK");
 
 
+            FragmentManager manager = getFragmentManager();
+            Fragment fragment = manager.findFragmentById(R.layout.fragment_dropbox_password);
+            DropboxPasswordFragment dropboxPasswordFragment = new DropboxPasswordFragment();
+            dropboxPasswordFragment.show(manager, "fragment_dropbox_password");
+
         }
     };
 
@@ -112,5 +121,8 @@ public class DropboxManagerActivity extends Activity {
     }
 
 
-
+    @Override
+    public void onFinishPasswordDialog(String password) {
+        Toast.makeText(this, "Tu Password: " + password, Toast.LENGTH_SHORT).show();
+    }
 }
