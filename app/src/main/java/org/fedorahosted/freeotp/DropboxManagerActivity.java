@@ -13,17 +13,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dropbox.core.android.Auth;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.SearchResult;
 import com.dropbox.core.v2.users.FullAccount;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.fedorahosted.freeotp.config.AccessTokenRetriever;
 import org.fedorahosted.freeotp.external.DropboxClient;
+import org.fedorahosted.freeotp.external.DropboxDownloadTask;
+import org.fedorahosted.freeotp.external.DropboxFileSearchTask;
 import org.fedorahosted.freeotp.external.DropboxPasswordFragment;
 import org.fedorahosted.freeotp.external.DropboxUserAccountTask;
 
 import java.io.File;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
@@ -34,6 +37,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
     private AccessTokenRetriever tokenManager;
     private Button mSyncButton;
     private SharedPreferences prefs;
+    private DropboxClient dropboxClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
         if (tokenManager.dbTokenExists()) {
             ACCESS_TOKEN = tokenManager.retrieveDbAccessToken();
+
             getDropboxUserAccount();
         } else {
             String accessToken = Auth.getOAuth2Token();
@@ -91,6 +96,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
             HashMap back = gson.fromJson(json, hashmapStringType);
             Log.d("MAP", "BACK");
 
+            listDropboxFiles();
 
             FragmentManager manager = getFragmentManager();
             Fragment fragment = manager.findFragmentById(R.layout.fragment_dropbox_password);
@@ -99,6 +105,42 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
         }
     };
+
+    private void listDropboxFiles(){
+        new DropboxFileSearchTask(DropboxClient.getClient(ACCESS_TOKEN), new DropboxFileSearchTask.DropboxFileTasksDelegate() {
+            @Override
+            public void onListResultsReceived(SearchResult list) {
+                if ( list.getMatches().size() > 0) {
+                    FileMetadata fm = (FileMetadata) list.getMatches().get(0).getMetadata();
+                    Log.d("File: ", fm.toStringMultiline());
+                    downloadTokenDropbox(fm);
+                }
+
+            }
+
+            @Override
+            public void onError(Exception error) {
+                Log.d("Dropbox", "List files");
+            }
+        }).execute();
+    }
+
+    private void downloadTokenDropbox(FileMetadata fm) {
+        new DropboxDownloadTask(DropboxClient.getClient(ACCESS_TOKEN), new DropboxDownloadTask.Callback() {
+
+            @Override
+            public void onDownloadComplete(File result) {
+                Log.d("Dropbox", "Got the file");
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
+                Log.d("Dropbox", "could not download");
+            }
+        }, this.getApplicationContext()).execute(fm);
+    }
 
     protected void getDropboxUserAccount() {
         if (ACCESS_TOKEN == null) return;
