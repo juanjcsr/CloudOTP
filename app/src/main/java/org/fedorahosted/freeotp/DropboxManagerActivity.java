@@ -25,9 +25,12 @@ import org.fedorahosted.freeotp.external.DropboxClient;
 import org.fedorahosted.freeotp.external.DropboxDownloadTask;
 import org.fedorahosted.freeotp.external.DropboxFileSearchTask;
 import org.fedorahosted.freeotp.external.DropboxPasswordFragment;
+import org.fedorahosted.freeotp.external.DropboxUploadTask;
 import org.fedorahosted.freeotp.external.DropboxUserAccountTask;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
@@ -181,6 +184,9 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
                 Log.d("AES!", "Desencriptado: " + decrypted);
                 HashMap back = gson.fromJson(decrypted, hashmapStringType);
                 Log.d("MAP", back.toString());
+                mEncryptedFile = createFileFromString(toencrypt.toString());
+                uploadFileToDropbox();
+
             } catch (Exception e) {
                 Log.e("Encrypt","could not encrypt");
             }
@@ -188,5 +194,30 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
         }
         Toast.makeText(this, "Tu Password: " + password, Toast.LENGTH_SHORT).show();
 
+    }
+
+    private void uploadFileToDropbox() {
+        new DropboxUploadTask(this.getApplicationContext(), DropboxClient.getClient(ACCESS_TOKEN), new DropboxUploadTask.Callback(){
+
+            @Override
+            public void onUploadcomplete(FileMetadata result) {
+                Log.d("Uploaded", result.toStringMultiline());
+            }
+
+            @Override
+            public void onError(Exception ex) {
+                Log.e("Uploaded", ex.getLocalizedMessage());
+            }
+        }).execute(mEncryptedFile);
+    }
+
+    private File createFileFromString(String text) throws IOException {
+
+        File file = new File(getCacheDir(), "otptokens.db");
+        FileWriter fw = new FileWriter(file);
+        fw.write(text);
+        fw.flush();
+        fw.close();
+        return file;
     }
 }

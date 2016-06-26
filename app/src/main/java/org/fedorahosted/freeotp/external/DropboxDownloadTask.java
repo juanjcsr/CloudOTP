@@ -29,7 +29,7 @@ public class DropboxDownloadTask extends AsyncTask<FileMetadata, Void, File> {
         FileMetadata metadata = params[0];
         try {
             String fileName = metadata.getName();
-            File file = File.createTempFile(fileName, null, context.getCacheDir());
+            File file = new File(context.getCacheDir(), fileName);
 
 
             OutputStream os = new FileOutputStream(file);
