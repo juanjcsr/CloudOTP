@@ -29,9 +29,12 @@ import org.fedorahosted.freeotp.external.DropboxUploadTask;
 import org.fedorahosted.freeotp.external.DropboxUserAccountTask;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 
 public class DropboxManagerActivity extends Activity implements DropboxPasswordFragment.DropboxFilePasswordListener {
@@ -110,6 +113,8 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
                     Log.d("File: ", fm.toStringMultiline());
 
                     downloadTokenDropbox(fm);
+                } else {
+                    hasRemoteFile = false;
                 }
 
             }
@@ -163,15 +168,44 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
     @Override
     public void onFinishPasswordDialog(String password) {
-
+        Gson gson = new Gson();
+        prefs = getApplicationContext().getSharedPreferences("tokens", Context.MODE_PRIVATE);
         if ( hasRemoteFile ) {
+            int fileLength = ( int ) mEncryptedFile.length();
+            byte[] bytes = new byte[fileLength];
+
+            try {
+                FileInputStream in = new FileInputStream(mEncryptedFile);
+                in.read(bytes);
+                String contents = new String(bytes);
+                Log.d("FileRead", contents);
+                AESStringCypher.CipherTextIvMac cypher = new AESStringCypher.CipherTextIvMac(contents);
+                AESStringCypher.SecretKeys keys = AESStringCypher.generateKeyFromPassword(password, password);
+                String decrypted = AESStringCypher.decryptString(cypher, keys);
+                Log.d("FileRead", decrypted);
+                Type hashmapStringType = new TypeToken<HashMap<String, String>>(){}.getType();
+                HashMap<String, String> back = gson.fromJson(decrypted, hashmapStringType);
+                Log.d("FileRead", back.toString());
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.clear();
+                for (String s : back.keySet()) {
+                    editor.putString(s, back.get(s));
+                }
+                editor.commit();
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (GeneralSecurityException ex) {
+                Log.d("Decrypt", "Wrong password");
+            }
+
 
         } else {
             Log.d("Clicked", "Inside");
-            prefs = getApplicationContext().getSharedPreferences("tokens", Context.MODE_PRIVATE);
+
             HashMap tokens = (HashMap) prefs.getAll();
             Log.d("Tokens", Integer.toString(tokens.size()));
-            Gson gson = new Gson();
+
             Type hashmapStringType = new TypeToken<HashMap<String, String>>(){}.getType();
             String json = gson.toJson(tokens, hashmapStringType);
             Log.d("JSON", json);
