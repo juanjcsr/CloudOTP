@@ -19,6 +19,7 @@ import com.dropbox.core.v2.users.FullAccount;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.fedorahosted.freeotp.config.AESStringCypher;
 import org.fedorahosted.freeotp.config.AccessTokenRetriever;
 import org.fedorahosted.freeotp.external.DropboxClient;
 import org.fedorahosted.freeotp.external.DropboxDownloadTask;
@@ -38,6 +39,8 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
     private Button mSyncButton;
     private SharedPreferences prefs;
     private DropboxClient dropboxClient;
+    private File mEncryptedFile;
+    private boolean hasRemoteFile = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,17 +88,6 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
     private View.OnClickListener mSyncButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.d("Clicked", "Inside");
-            prefs = getApplicationContext().getSharedPreferences("tokens", Context.MODE_PRIVATE);
-            HashMap tokens = (HashMap) prefs.getAll();
-            Log.d("Tokens", Integer.toString(tokens.size()));
-            Gson gson = new Gson();
-            Type hashmapStringType = new TypeToken<HashMap<String, String>>(){}.getType();
-            String json = gson.toJson(tokens, hashmapStringType);
-            Log.d("JSON", json);
-            HashMap back = gson.fromJson(json, hashmapStringType);
-            Log.d("MAP", "BACK");
-
             listDropboxFiles();
 
             FragmentManager manager = getFragmentManager();
@@ -113,6 +105,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
                 if ( list.getMatches().size() > 0) {
                     FileMetadata fm = (FileMetadata) list.getMatches().get(0).getMetadata();
                     Log.d("File: ", fm.toStringMultiline());
+
                     downloadTokenDropbox(fm);
                 }
 
@@ -130,6 +123,8 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
             @Override
             public void onDownloadComplete(File result) {
+                mEncryptedFile = result;
+                hasRemoteFile = true;
                 Log.d("Dropbox", "Got the file");
 
             }
@@ -165,6 +160,33 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
     @Override
     public void onFinishPasswordDialog(String password) {
+
+        if ( hasRemoteFile ) {
+
+        } else {
+            Log.d("Clicked", "Inside");
+            prefs = getApplicationContext().getSharedPreferences("tokens", Context.MODE_PRIVATE);
+            HashMap tokens = (HashMap) prefs.getAll();
+            Log.d("Tokens", Integer.toString(tokens.size()));
+            Gson gson = new Gson();
+            Type hashmapStringType = new TypeToken<HashMap<String, String>>(){}.getType();
+            String json = gson.toJson(tokens, hashmapStringType);
+            Log.d("JSON", json);
+            try {
+                AESStringCypher.SecretKeys keys = AESStringCypher.generateKeyFromPassword(password, password);
+                AESStringCypher.CipherTextIvMac toencrypt = AESStringCypher.encrypt(json, keys);
+                Log.d("AES! ", "Encriptado: " + toencrypt.toString());
+                AESStringCypher.CipherTextIvMac cypher = new AESStringCypher.CipherTextIvMac(toencrypt.toString());
+                String decrypted = AESStringCypher.decryptString(cypher, keys);
+                Log.d("AES!", "Desencriptado: " + decrypted);
+                HashMap back = gson.fromJson(decrypted, hashmapStringType);
+                Log.d("MAP", back.toString());
+            } catch (Exception e) {
+                Log.e("Encrypt","could not encrypt");
+            }
+
+        }
         Toast.makeText(this, "Tu Password: " + password, Toast.LENGTH_SHORT).show();
+
     }
 }

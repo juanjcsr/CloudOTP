@@ -25,7 +25,7 @@ public class DropboxFileSearchTask extends AsyncTask<Void, Void, SearchResult> {
     protected SearchResult doInBackground(Void... voids) {
         try {
             Log.d("DB","OBTENIENDO....");
-            return dbxClientV2.files().search("/datos", "hospitales.csv");
+            return dbxClientV2.files().search("", "otptokens.db");
             //Download
 
         } catch (DbxException ex) {
