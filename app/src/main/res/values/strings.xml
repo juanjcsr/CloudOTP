@@ -58,4 +58,12 @@
     <string name="sync_upload_error">Could not upload file</string>
     <string name="remote_sync_success">Token list uploaded to Dropbox</string>
     <string name="local_sync_success">Local tokens updated</string>
+    <string name="password_input_label">Write your password:</string>
+    <string name="about_dropbox">You can sync your tokens if you have a Dropbox account.
+        If you choose to do so, your tokens will be encrypted using the standard
+        AES-256. You will only have access to your Dropbox tokens with your master
+        password. CloudFreeOTP does not save your password anywhere.
+    </string>
+    <string name="verify_password_input_label">Verify your password</string>
+    <string name="passwords_does_not_match">Check that your passwords match</string>
 </resources>

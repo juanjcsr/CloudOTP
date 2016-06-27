@@ -2,13 +2,16 @@ package org.fedorahosted.freeotp.external;
 
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.fedorahosted.freeotp.R;
 
@@ -17,6 +20,10 @@ public class DropboxPasswordFragment extends DialogFragment implements TextView.
 
     private EditText editText;
     private Button dismissButton;
+    private EditText passwordVerificationText;
+    private TextView passwordVerificationLabel;
+    private boolean hasRemoteFile = false;
+
 
     public interface DropboxFilePasswordListener {
         void onFinishPasswordDialog(String password);
@@ -30,13 +37,21 @@ public class DropboxPasswordFragment extends DialogFragment implements TextView.
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view  = inflater.inflate(R.layout.fragment_dropbox_password, container);
+
+        hasRemoteFile = getArguments().getBoolean("hasRemoteFile");
+
         editText = (EditText) view.findViewById(R.id.db_password);
         dismissButton = (Button) view.findViewById(R.id.dismiss_password_button);
-
+        passwordVerificationText = (EditText) view.findViewById(R.id.db_password_verification);
+        passwordVerificationLabel = (TextView) view.findViewById(R.id.verify_password_label);
         dismissButton.setOnClickListener(dismissClickListener);
         //editText.requestFocus();
-
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         //getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        if ( hasRemoteFile ) {
+            passwordVerificationLabel.setVisibility(View.GONE);
+            passwordVerificationText.setVisibility(View.GONE);
+        }
         return view;
     }
 
@@ -52,9 +67,14 @@ public class DropboxPasswordFragment extends DialogFragment implements TextView.
 
         @Override
         public void onClick(View view) {
-            DropboxFilePasswordListener activity = (DropboxFilePasswordListener) getActivity();
-            activity.onFinishPasswordDialog(editText.getText().toString());
-            getDialog().dismiss();
+            if (!hasRemoteFile && !editText.getText().toString().equals((passwordVerificationText.getText().toString()))){
+                Toast.makeText(getActivity().getApplicationContext(), R.string.passwords_does_not_match, Toast.LENGTH_SHORT).show();
+            } else {
+                DropboxFilePasswordListener activity = (DropboxFilePasswordListener) getActivity();
+                activity.onFinishPasswordDialog(editText.getText().toString());
+                getDialog().dismiss();
+            }
+
         }
     };
 

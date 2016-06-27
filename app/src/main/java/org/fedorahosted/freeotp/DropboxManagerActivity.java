@@ -45,11 +45,12 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
     private String ACCESS_TOKEN;
     private AccessTokenRetriever tokenManager;
     private Button mSyncButton;
+    private Button mLoginButton;
     private SharedPreferences prefs;
     private DropboxClient dropboxClient;
     private File mEncryptedFile;
     private boolean hasRemoteFile = false;
-    private static final String FILENAME = "otptokens.txt";
+    private static final String FILENAME = "otptokens.db";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +63,10 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
         mSyncButton = (Button) findViewById(R.id.sync_token_button);
         mSyncButton.setOnClickListener(mSyncButtonListener);
+        mSyncButton.setVisibility(View.INVISIBLE);
 
-        Button loginButton = (Button) findViewById(R.id.sign_in_button);
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        mLoginButton = (Button) findViewById(R.id.sign_in_button);
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Auth.startOAuth2Authentication(getApplicationContext(), getString(R.string.DB_APP_KEY));
@@ -97,12 +99,16 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
     private View.OnClickListener mSyncButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            listDropboxFiles();
 
             FragmentManager manager = getFragmentManager();
             Fragment fragment = manager.findFragmentById(R.layout.fragment_dropbox_password);
+
             DropboxPasswordFragment dropboxPasswordFragment = new DropboxPasswordFragment();
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("hasRemoteFile", hasRemoteFile);
+            dropboxPasswordFragment.setArguments(bundle);
             dropboxPasswordFragment.show(manager, "fragment_dropbox_password");
+
 
         }
     };
@@ -114,11 +120,14 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
                 if ( list.getMatches().size() > 0) {
                     FileMetadata fm = (FileMetadata) list.getMatches().get(0).getMetadata();
                     Log.d("File: ", fm.toStringMultiline());
-
+                    hasRemoteFile = true;
                     downloadTokenDropbox(fm);
                 } else {
                     hasRemoteFile = false;
                 }
+
+                mSyncButton.setVisibility(View.VISIBLE);
+
 
             }
 
@@ -126,7 +135,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
             public void onError(Exception error) {
                 Log.d("Dropbox", "List files");
             }
-        }).execute();
+        }).execute(FILENAME);
     }
 
     private void downloadTokenDropbox(FileMetadata fm) {
@@ -135,7 +144,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
             @Override
             public void onDownloadComplete(File result) {
                 mEncryptedFile = result;
-                hasRemoteFile = true;
+
                 Log.d("Dropbox", "Got the file");
 
             }
@@ -158,6 +167,8 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
                 Log.d("User:", account.getName().getDisplayName());
                 Log.d("User:", account.getAccountType().name());
                 loginData.setText("Welcome: " + account.getName().getDisplayName());
+                mLoginButton.setVisibility(View.GONE);
+                listDropboxFiles();
 
             }
 
