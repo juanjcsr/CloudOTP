@@ -54,4 +54,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="typePassword">Write your DB password</string>
     <string name="dismiss_button_label">Ok</string>
+    <string name="sync_success">Dropbox Sync completed</string>
+    <string name="sync_upload_error">Could not upload file</string>
+    <string name="remote_sync_success">Token list uploaded to Dropbox</string>
+    <string name="local_sync_success">Local tokens updated</string>
 </resources>

@@ -10,7 +10,7 @@ import com.dropbox.core.v2.files.SearchResult;
 /**
  * Created by jezz on 22/06/16.
  */
-public class DropboxFileSearchTask extends AsyncTask<Void, Void, SearchResult> {
+public class DropboxFileSearchTask extends AsyncTask<String, Void, SearchResult> {
 
     private DbxClientV2 dbxClientV2;
     private DropboxFileTasksDelegate delegate;
@@ -22,10 +22,11 @@ public class DropboxFileSearchTask extends AsyncTask<Void, Void, SearchResult> {
     }
 
     @Override
-    protected SearchResult doInBackground(Void... voids) {
+    protected SearchResult doInBackground(String... filename) {
+        String file = filename[0];
         try {
             Log.d("DB","OBTENIENDO....");
-            return dbxClientV2.files().search("", "otptokens.db");
+            return dbxClientV2.files().search("", file);
             //Download
 
         } catch (DbxException ex) {

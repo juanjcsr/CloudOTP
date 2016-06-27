@@ -21,6 +21,7 @@ import com.google.gson.reflect.TypeToken;
 
 import org.fedorahosted.freeotp.config.AESStringCypher;
 import org.fedorahosted.freeotp.config.AccessTokenRetriever;
+import org.fedorahosted.freeotp.config.Utils;
 import org.fedorahosted.freeotp.external.DropboxClient;
 import org.fedorahosted.freeotp.external.DropboxDownloadTask;
 import org.fedorahosted.freeotp.external.DropboxFileSearchTask;
@@ -33,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
@@ -47,6 +49,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
     private DropboxClient dropboxClient;
     private File mEncryptedFile;
     private boolean hasRemoteFile = false;
+    private static final String FILENAME = "otptokens.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,17 +185,22 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
                 AESStringCypher.CipherTextIvMac cypher = new AESStringCypher.CipherTextIvMac(contents);
                 AESStringCypher.SecretKeys keys = AESStringCypher.generateKeyFromPassword(password, password);
                 String decrypted = AESStringCypher.decryptString(cypher, keys);
-                Log.d("FileRead", decrypted);
-                Type hashmapStringType = new TypeToken<HashMap<String, String>>(){}.getType();
-                HashMap<String, String> back = gson.fromJson(decrypted, hashmapStringType);
-                Log.d("FileRead", back.toString());
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.clear();
-                for (String s : back.keySet()) {
-                    editor.putString(s, back.get(s));
-                }
-                editor.commit();
+                HashMap<String, String> back = Utils.transformJsonToStringHashMap(decrypted);
+                long remoteDate = Long.parseLong( back.get("lastModified"));
+                long localDate = Long.parseLong( prefs.getString("lastModified", "-1"));
+                Log.d("DATES:", "REMOTE DATE = " + remoteDate + " LOCALDATE = " + localDate + " REMOTE NEWER? " + Utils.isRemoteDateNewer(localDate, remoteDate));
+                if ( Utils.isRemoteDateNewer(localDate, remoteDate) ) {
+                    Utils.overwriteAndroidSharedPrefereces(back, prefs);
+                    Toast.makeText(this, R.string.local_sync_success, Toast.LENGTH_SHORT).show();
 
+                } else {
+                    String encrypted = encryptSharedPrefs(password, gson);
+                    mEncryptedFile = Utils.createCachedFileFromTokenString(encrypted,
+                            FILENAME,
+                            getApplicationContext());
+                    uploadFileToDropbox();
+                    Toast.makeText(this, R.string.remote_sync_success, Toast.LENGTH_SHORT).show();
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             } catch (GeneralSecurityException ex) {
@@ -201,33 +209,30 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
 
         } else {
-            Log.d("Clicked", "Inside");
-
-            HashMap tokens = (HashMap) prefs.getAll();
-            Log.d("Tokens", Integer.toString(tokens.size()));
-
-            Type hashmapStringType = new TypeToken<HashMap<String, String>>(){}.getType();
-            String json = gson.toJson(tokens, hashmapStringType);
-            Log.d("JSON", json);
             try {
-                AESStringCypher.SecretKeys keys = AESStringCypher.generateKeyFromPassword(password, password);
-                AESStringCypher.CipherTextIvMac toencrypt = AESStringCypher.encrypt(json, keys);
-                Log.d("AES! ", "Encriptado: " + toencrypt.toString());
-                AESStringCypher.CipherTextIvMac cypher = new AESStringCypher.CipherTextIvMac(toencrypt.toString());
-                String decrypted = AESStringCypher.decryptString(cypher, keys);
-                Log.d("AES!", "Desencriptado: " + decrypted);
-                HashMap back = gson.fromJson(decrypted, hashmapStringType);
-                Log.d("MAP", back.toString());
-                mEncryptedFile = createFileFromString(toencrypt.toString());
+                String encrypted = encryptSharedPrefs(password, gson);
+                mEncryptedFile = Utils.createCachedFileFromTokenString(encrypted,
+                        FILENAME,
+                        getApplicationContext());
                 uploadFileToDropbox();
-
             } catch (Exception e) {
-                Log.e("Encrypt","could not encrypt");
+                e.printStackTrace();
             }
 
         }
-        Toast.makeText(this, "Tu Password: " + password, Toast.LENGTH_SHORT).show();
+    }
 
+    private String encryptSharedPrefs(String password, Gson gson)
+            throws UnsupportedEncodingException, GeneralSecurityException {
+        HashMap tokens = (HashMap) prefs.getAll();
+        Log.d("Tokens", Integer.toString(tokens.size()));
+
+        Type hashmapStringType = new TypeToken<HashMap<String, String>>(){}.getType();
+        String json = gson.toJson(tokens, hashmapStringType);
+        Log.d("JSON", json);
+        AESStringCypher.SecretKeys keys = AESStringCypher.generateKeyFromPassword(password, password);
+        AESStringCypher.CipherTextIvMac toencrypt = AESStringCypher.encrypt(json, keys);
+        return toencrypt.toString();
     }
 
     private void uploadFileToDropbox() {
@@ -236,6 +241,10 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
             @Override
             public void onUploadcomplete(FileMetadata result) {
                 Log.d("Uploaded", result.toStringMultiline());
+                Toast.makeText(getApplicationContext(),
+                        R.string.sync_success,
+                        Toast.LENGTH_SHORT).show();
+
             }
 
             @Override
@@ -245,13 +254,5 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
         }).execute(mEncryptedFile);
     }
 
-    private File createFileFromString(String text) throws IOException {
 
-        File file = new File(getCacheDir(), "otptokens.db");
-        FileWriter fw = new FileWriter(file);
-        fw.write(text);
-        fw.flush();
-        fw.close();
-        return file;
-    }
 }

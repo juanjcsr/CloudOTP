@@ -1,6 +1,7 @@
 package org.fedorahosted.freeotp;
 
 import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import com.google.gson.reflect.TypeToken;
 public class TokenPersistence {
     private static final String NAME  = "tokens";
     private static final String ORDER = "tokenOrder";
+    private static final String MODIFIED = "lastModified";
     private final SharedPreferences prefs;
     private final Gson gson;
 
@@ -30,6 +32,11 @@ public class TokenPersistence {
 
     private SharedPreferences.Editor setTokenOrder(List<String> order) {
         return prefs.edit().putString(ORDER, gson.toJson(order));
+    }
+
+    private SharedPreferences.Editor updateTokenLastModifiedDate() {
+        long date = new Date().getTime();
+        return prefs.edit().putString(MODIFIED, Long.toString(date));
     }
 
     public static Token addWithToast(Context ctx, String uri) {
@@ -81,6 +88,7 @@ public class TokenPersistence {
         List<String> order = getTokenOrder();
         order.add(0, key);
         setTokenOrder(order).putString(key, gson.toJson(token)).apply();
+        updateTokenLastModifiedDate().apply();
     }
 
     public void move(int fromPosition, int toPosition) {
@@ -95,12 +103,14 @@ public class TokenPersistence {
 
         order.add(toPosition, order.remove(fromPosition));
         setTokenOrder(order).apply();
+        //updateTokenLastModifiedDate().apply();
     }
 
     public void delete(int position) {
         List<String> order = getTokenOrder();
         String key = order.remove(position);
         setTokenOrder(order).remove(key).apply();
+        updateTokenLastModifiedDate().apply();
     }
 
     public void save(Token token) {
