@@ -23,8 +23,8 @@
     <string name="about_freeotp">About CloudOTP</string>
     <string name="about_version">CloudOTP Version %1$s (%2$d)</string>
     <string name="about_copyright">© 2015 - Juan Carlos Sanchez</string>
-    <string name="about_license">CloudOTP is licensed under %1$s and is based on RedHat's FreeOTP</string>
-    <string name="about_website">For more information on FreeOTP, see Red Hat's %s.</string>
+    <string name="about_license">CloudOTP is licensed under %1$s and is based on RedHat\'s FreeOTP</string>
+    <string name="about_website">For more information on FreeOTP, see Red Hat\'s %s.</string>
     <string name="about_feedback">We welcome your feedback:&lt;br/&gt;• %1$s&lt;br/&gt;• %2$s</string>
     <string name="about_icons">Some icons used by this application are reproduced from work created and shared by the Android Open Source Project and used according to terms described in the Creative Commons 2.5 Attribution License.</string>
 
@@ -46,14 +46,14 @@
     </string-array>
 
     <string name="DB_APP_KEY">gb8ul3ds6h6icu0</string>
-    <string name="title_activity_dropbox">DropboxActivity</string>
+    <string name="title_activity_dropbox">Cloud Token Sync</string>
     <string name="dropbox_sign_in">Login w/ DropBox</string>
     <string name="sync_token_text">Sync Tokens</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="typePassword">Write your DB password</string>
-    <string name="dismiss_button_label">Ok</string>
+    <string name="dismiss_button_label">OK</string>
     <string name="sync_success">Dropbox Sync completed</string>
     <string name="sync_upload_error">Could not upload file</string>
     <string name="remote_sync_success">Token list uploaded to Dropbox</string>
@@ -66,4 +66,5 @@
     </string>
     <string name="verify_password_input_label">Verify your password</string>
     <string name="passwords_does_not_match">Check that your passwords match</string>
+    <string name="sync_password_error">Wrong password. Tokens not synced</string>
 </resources>

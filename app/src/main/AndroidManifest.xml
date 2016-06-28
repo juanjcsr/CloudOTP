@@ -18,13 +18,13 @@
    - limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.fedorahosted.freeotp"
+    package="org.juanjcsr.cloudotp"
     android:versionCode="1"
     android:versionName="1">
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="20" />
+        android:targetSdkVersion="23" />
 
     <supports-screens
         android:anyDensity="true"
@@ -57,7 +57,7 @@
             android:name=".AboutActivity"
             android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar" />
         <activity
-            android:name=".add.ScanActivity"
+            android:name="add.ScanActivity"
             android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen" />
         <activity
             android:name=".add.AddActivity"
