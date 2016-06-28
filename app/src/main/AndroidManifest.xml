@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   - FreeOTP
+   - CloudOTP
    -
+   - Author: Juan Carlos Sanchez <juanjcsr@gmail.com>
+   -
+   - Based on RedHat's FreeOTP, available on
+   - <https://fedorahosted.org/freeotp/>
    - Authors: Nathaniel McCallum <npmccallum@redhat.com>
    -
    - Copyright (C) 2013  Nathaniel McCallum, Red Hat
