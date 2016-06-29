@@ -26,24 +26,31 @@ import org.juanjcsr.cloudotp.R;
 import org.juanjcsr.cloudotp.Token;
 import org.juanjcsr.cloudotp.TokenPersistence;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 public class ScanActivity extends Activity implements SurfaceHolder.Callback {
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
     private final CameraInfo    mCameraInfo  = new CameraInfo();
     private final ScanAsyncTask mScanAsyncTask;
     private final int           mCameraId;
@@ -133,8 +140,48 @@ public class ScanActivity extends Activity implements SurfaceHolder.Callback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.scan);
-        mScanAsyncTask.execute();
+        if (checkCameraPermission(this, Manifest.permission.CAMERA)) {
+            mScanAsyncTask.execute();
+        } else {
+            requestCameraPermission(ScanActivity.this, Manifest.permission.CAMERA, REQUEST_CAMERA_PERMISSION);
+        }
+
     }
+
+    public void requestCameraPermission(Activity thisActivity, String permission, int code) {
+        if (ContextCompat.checkSelfPermission(thisActivity, permission) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity, permission)) {
+
+            } else {
+                ActivityCompat.requestPermissions(thisActivity, new String[]{permission}, code);
+            }
+        }
+    }
+
+    public boolean checkCameraPermission(Context context, String permission) {
+        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int permsRequestCode, String[] permissions, int[] grantResults) {
+        switch (permsRequestCode) {
+            case REQUEST_CAMERA_PERMISSION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    mScanAsyncTask.execute();
+                } else {
+                    Toast.makeText(this, R.string.error_camera_open, Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
+    }
+
 
     @Override
     public void onDestroy() {

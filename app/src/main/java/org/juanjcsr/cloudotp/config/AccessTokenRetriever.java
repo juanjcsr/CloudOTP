@@ -29,10 +29,10 @@ public class AccessTokenRetriever {
         SharedPreferences prefs = mContext.getSharedPreferences(NAME, Context.MODE_PRIVATE);
         String accessToken = prefs.getString(DBSTORAGE, null);
         if (accessToken == null ) {
-            Log.d("DB Access Token Status", "No Token found");
+            //Log.d("DB Access Token Status", "No Token found");
             return null;
         } else {
-            Log.d("DB Access Token Status", "Token found");
+            //Log.d("DB Access Token Status", "Token found");
             return accessToken;
         }
     }

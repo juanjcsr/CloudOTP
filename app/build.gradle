@@ -5,9 +5,18 @@ dependencies {
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.dropbox.core:dropbox-core-sdk:2.0.5'
+    compile 'com.android.support:support-v4:23.3.0'
 }
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'DebugProd'
+            keyPassword 'juancar1os'
+            storeFile file('/home/jezz/Android/certs/production1.jks')
+            storePassword 'juancar1os'
+        }
+    }
     compileSdkVersion 23
     buildToolsVersion '23.0.3'
     packagingOptions {
@@ -15,5 +24,13 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
     }
 }

@@ -117,7 +117,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
             public void onListResultsReceived(SearchResult list) {
                 if ( list.getMatches().size() > 0) {
                     FileMetadata fm = (FileMetadata) list.getMatches().get(0).getMetadata();
-                    Log.d("File: ", fm.toStringMultiline());
+                    //Log.d("File: ", fm.toStringMultiline());
                     hasRemoteFile = true;
                     downloadTokenDropbox(fm);
                 } else {
@@ -131,7 +131,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
             @Override
             public void onError(Exception error) {
-                Log.d("Dropbox", "List files");
+                //Log.d("Dropbox", "List files");
             }
         }).execute(FILENAME);
     }
@@ -143,14 +143,14 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
             public void onDownloadComplete(File result) {
                 mEncryptedFile = result;
 
-                Log.d("Dropbox", "Got the file");
+                //Log.d("Dropbox", "Got the file");
 
             }
 
             @Override
             public void onError(Exception e) {
                 e.printStackTrace();
-                Log.d("Dropbox", "could not download");
+                //Log.d("Dropbox", "could not download");
             }
         }, this.getApplicationContext()).execute(fm);
     }
@@ -161,9 +161,9 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
             @Override
             public void onAccountReceived(FullAccount account) {
-                Log.d("User:", account.getEmail());
-                Log.d("User:", account.getName().getDisplayName());
-                Log.d("User:", account.getAccountType().name());
+                //Log.d("User:", account.getEmail());
+                //Log.d("User:", account.getName().getDisplayName());
+                //Log.d("User:", account.getAccountType().name());
                 loginData.setText("Welcome: " + account.getName().getDisplayName());
                 mLoginButton.setVisibility(View.GONE);
                 listDropboxFiles();
@@ -172,7 +172,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
             @Override
             public void onError(Exception error) {
-                Log.d("User", "Error receiving account");
+                //Log.d("User", "Error receiving account");
             }
         }).execute();
     }
@@ -190,14 +190,14 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
                 FileInputStream in = new FileInputStream(mEncryptedFile);
                 in.read(bytes);
                 String contents = new String(bytes);
-                Log.d("FileRead", contents);
+                //Log.d("FileRead", contents);
                 AESStringCypher.CipherTextIvMac cypher = new AESStringCypher.CipherTextIvMac(contents);
                 AESStringCypher.SecretKeys keys = AESStringCypher.generateKeyFromPassword(password, password);
                 String decrypted = AESStringCypher.decryptString(cypher, keys);
                 HashMap<String, String> back = Utils.transformJsonToStringHashMap(decrypted);
                 long remoteDate = Long.parseLong( back.get("lastModified"));
                 long localDate = Long.parseLong( prefs.getString("lastModified", "-1"));
-                Log.d("DATES:", "REMOTE DATE = " + remoteDate + " LOCALDATE = " + localDate + " REMOTE NEWER? " + Utils.isRemoteDateNewer(localDate, remoteDate));
+                //Log.d("DATES:", "REMOTE DATE = " + remoteDate + " LOCALDATE = " + localDate + " REMOTE NEWER? " + Utils.isRemoteDateNewer(localDate, remoteDate));
                 if ( Utils.isRemoteDateNewer(localDate, remoteDate) ) {
                     Utils.overwriteAndroidSharedPrefereces(back, prefs);
                     Toast.makeText(this, R.string.local_sync_success, Toast.LENGTH_SHORT).show();
@@ -213,7 +213,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
             } catch (IOException ex) {
                 ex.printStackTrace();
             } catch (GeneralSecurityException ex) {
-                Log.d("Decrypt", "Wrong password");
+                //Log.d("Decrypt", "Wrong password");
                 Toast.makeText(this, R.string.sync_password_error, Toast.LENGTH_SHORT).show();
             }
 
@@ -235,11 +235,11 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
     private String encryptSharedPrefs(String password, Gson gson)
             throws UnsupportedEncodingException, GeneralSecurityException {
         HashMap tokens = (HashMap) prefs.getAll();
-        Log.d("Tokens", Integer.toString(tokens.size()));
+        //Log.d("Tokens", Integer.toString(tokens.size()));
 
         Type hashmapStringType = new TypeToken<HashMap<String, String>>(){}.getType();
         String json = gson.toJson(tokens, hashmapStringType);
-        Log.d("JSON", json);
+        //Log.d("JSON", json);
         AESStringCypher.SecretKeys keys = AESStringCypher.generateKeyFromPassword(password, password);
         AESStringCypher.CipherTextIvMac toencrypt = AESStringCypher.encrypt(json, keys);
         return toencrypt.toString();
@@ -250,7 +250,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
 
             @Override
             public void onUploadcomplete(FileMetadata result) {
-                Log.d("Uploaded", result.toStringMultiline());
+                //Log.d("Uploaded", result.toStringMultiline());
                 Toast.makeText(getApplicationContext(),
                         R.string.sync_success,
                         Toast.LENGTH_SHORT).show();

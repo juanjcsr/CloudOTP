@@ -39,19 +39,26 @@ package org.juanjcsr.cloudotp;
 import org.juanjcsr.cloudotp.add.AddActivity;
 import org.juanjcsr.cloudotp.add.ScanActivity;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.widget.GridView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnMenuItemClickListener {
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
     private TokenAdapter mTokenAdapter;
     private DataSetObserver mDataSetObserver;
 
@@ -109,11 +116,51 @@ public class MainActivity extends Activity implements OnMenuItemClickListener {
         return true;
     }
 
+    public void requestCameraPermission(Activity thisActivity, String permission, int code) {
+        if (ContextCompat.checkSelfPermission(thisActivity, permission) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity, permission)) {
+
+            } else {
+                ActivityCompat.requestPermissions(thisActivity, new String[]{permission}, code);
+            }
+        }
+    }
+
+    public boolean checkCameraPermission(Context context, String permission) {
+        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int permsRequestCode, String[] permissions, int[] grantResults) {
+        switch (permsRequestCode) {
+            case REQUEST_CAMERA_PERMISSION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    startActivity(new Intent(this, org.juanjcsr.cloudotp.add.ScanActivity.class));
+                } else {
+                    Toast.makeText(this, R.string.error_camera_open, Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
+    }
+
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_scan:
-                startActivity(new Intent(this, ScanActivity.class));
+
+                if (checkCameraPermission(this, Manifest.permission.CAMERA)) {
+                    startActivity(new Intent(this, org.juanjcsr.cloudotp.add.ScanActivity.class));
+                } else {
+                    requestCameraPermission(MainActivity.this, Manifest.permission.CAMERA, REQUEST_CAMERA_PERMISSION);
+                }
+
                 overridePendingTransition(R.anim.fadein, R.anim.fadeout);
                 return true;
 
