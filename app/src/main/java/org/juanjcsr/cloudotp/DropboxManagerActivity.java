@@ -194,22 +194,27 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
                 AESStringCypher.CipherTextIvMac cypher = new AESStringCypher.CipherTextIvMac(contents);
                 AESStringCypher.SecretKeys keys = AESStringCypher.generateKeyFromPassword(password, password);
                 String decrypted = AESStringCypher.decryptString(cypher, keys);
-                HashMap<String, String> back = Utils.transformJsonToStringHashMap(decrypted);
-                long remoteDate = Long.parseLong( back.get("lastModified"));
-                long localDate = Long.parseLong( prefs.getString("lastModified", "-1"));
-                //Log.d("DATES:", "REMOTE DATE = " + remoteDate + " LOCALDATE = " + localDate + " REMOTE NEWER? " + Utils.isRemoteDateNewer(localDate, remoteDate));
-                if ( Utils.isRemoteDateNewer(localDate, remoteDate) ) {
-                    Utils.overwriteAndroidSharedPrefereces(back, prefs);
-                    Toast.makeText(this, R.string.local_sync_success, Toast.LENGTH_SHORT).show();
-
+                if ( decrypted.contains("{}")) {
+                    Toast.makeText(this, R.string.no_keys, Toast.LENGTH_LONG).show();
                 } else {
-                    String encrypted = encryptSharedPrefs(password, gson);
-                    mEncryptedFile = Utils.createCachedFileFromTokenString(encrypted,
-                            FILENAME,
-                            getApplicationContext());
-                    uploadFileToDropbox();
-                    Toast.makeText(this, R.string.remote_sync_success, Toast.LENGTH_SHORT).show();
+                    HashMap<String, String> back = Utils.transformJsonToStringHashMap(decrypted);
+                    long remoteDate = Long.parseLong( back.get("lastModified"));
+                    long localDate = Long.parseLong( prefs.getString("lastModified", "-1"));
+                    //Log.d("DATES:", "REMOTE DATE = " + remoteDate + " LOCALDATE = " + localDate + " REMOTE NEWER? " + Utils.isRemoteDateNewer(localDate, remoteDate));
+                    if ( Utils.isRemoteDateNewer(localDate, remoteDate) ) {
+                        Utils.overwriteAndroidSharedPrefereces(back, prefs);
+                        Toast.makeText(this, R.string.local_sync_success, Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        String encrypted = encryptSharedPrefs(password, gson);
+                        mEncryptedFile = Utils.createCachedFileFromTokenString(encrypted,
+                                FILENAME,
+                                getApplicationContext());
+                        uploadFileToDropbox();
+                        Toast.makeText(this, R.string.remote_sync_success, Toast.LENGTH_SHORT).show();
+                    }
                 }
+
             } catch (IOException ex) {
                 ex.printStackTrace();
             } catch (GeneralSecurityException ex) {
@@ -221,6 +226,7 @@ public class DropboxManagerActivity extends Activity implements DropboxPasswordF
         } else {
             try {
                 String encrypted = encryptSharedPrefs(password, gson);
+                Log.d("ENCRYPTED", encrypted);
                 mEncryptedFile = Utils.createCachedFileFromTokenString(encrypted,
                         FILENAME,
                         getApplicationContext());
