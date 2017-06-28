@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 dependencies {
     compile 'com.google.zxing:core:3.2.1'
@@ -6,6 +7,7 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.dropbox.core:dropbox-core-sdk:2.0.5'
     compile 'com.android.support:support-v4:23.3.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
 android {
@@ -33,4 +35,7 @@ android {
             signingConfig signingConfigs.config
         }
     }
+}
+repositories {
+    mavenCentral()
 }

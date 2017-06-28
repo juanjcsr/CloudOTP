@@ -22,7 +22,7 @@
    - limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.juanjcsr.cloudotp"
+    package="org.juanjcsr.newcloudotp"
     android:versionCode="1"
     android:versionName="1">
 
@@ -58,22 +58,22 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".AboutActivity"
+            android:name="org.juanjcsr.newcloudotp.AboutActivity"
             android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar" />
         <activity
-            android:name="org.juanjcsr.cloudotp.add.ScanActivity"
+            android:name="org.juanjcsr.newcloudotp.add.ScanActivity"
             android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen" />
         <activity
-            android:name=".add.AddActivity"
+            android:name="org.juanjcsr.newcloudotp.add.AddActivity"
             android:label="@string/add_token"
             android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar"
             android:windowSoftInputMode="stateVisible" />
         <activity
-            android:name=".edit.DeleteActivity"
+            android:name="org.juanjcsr.newcloudotp.edit.DeleteActivity"
             android:label="@string/delete_question"
             android:theme="@android:style/Theme.Holo.Light.Dialog" />
         <activity
-            android:name=".edit.EditActivity"
+            android:name="org.juanjcsr.newcloudotp.edit.EditActivity"
             android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar"
             android:windowSoftInputMode="stateVisible" />
         <activity
@@ -90,7 +90,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name="org.juanjcsr.newcloudotp.MainActivity"
             android:clearTaskOnLaunch="true"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
@@ -115,7 +115,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DropboxManagerActivity"
+            android:name="org.juanjcsr.newcloudotp.DropboxManagerActivity"
             android:label="@string/title_activity_dropbox"></activity>
     </application>
 

@@ -19,7 +19,7 @@
    - limitations under the License.
    -->
 
-<org.juanjcsr.cloudotp.TokenLayout
+<org.juanjcsr.newcloudotp.TokenLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:freeotp="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -35,7 +35,7 @@
         android:scaleType="fitCenter"
         />
 
-    <org.juanjcsr.cloudotp.ProgressCircle
+    <org.juanjcsr.newcloudotp.ProgressCircle
         android:id="@+id/progressInner"
         android:layout_width="96dp"
         android:layout_height="96dp"
@@ -44,7 +44,7 @@
         freeotp:max="1000"
         />
 
-    <org.juanjcsr.cloudotp.ProgressCircle
+    <org.juanjcsr.newcloudotp.ProgressCircle
         android:id="@+id/progressOuter"
         android:layout_width="96dp"
         android:layout_height="96dp"
@@ -87,4 +87,4 @@
         android:paddingBottom="12dp"
         android:src="@drawable/menu"
         />
-</org.juanjcsr.cloudotp.TokenLayout>
+</org.juanjcsr.newcloudotp.TokenLayout>
