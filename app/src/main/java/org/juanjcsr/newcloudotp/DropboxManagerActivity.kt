@@ -62,7 +62,7 @@ class DropboxManagerActivity : Activity(), DropboxPasswordFragment.DropboxFilePa
         mSyncButton!!.visibility = View.INVISIBLE
 
         mLoginButton = findViewById(R.id.sign_in_button) as Button
-        mLoginButton!!.setOnClickListener { Auth.startOAuth2Authentication(applicationContext, getString(R.string.DB_APP_KEY)) }
+        mLoginButton!!.setOnClickListener { Auth.startOAuth2Authentication(this, getString(R.string.DB_APP_KEY)) }
     }
 
     override fun onResume() {
