@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import kotlinx.android.synthetic.main.fragment_dropbox_password.*
 
 import org.juanjcsr.newcloudotp.R
 
@@ -34,34 +35,30 @@ class DropboxPasswordFragment : DialogFragment(), TextView.OnEditorActionListene
 
         hasRemoteFile = arguments.getBoolean("hasRemoteFile")
 
-        editText = view.findViewById(R.id.db_password) as EditText
-        dismissButton = view.findViewById(R.id.dismiss_password_button) as Button
-        passwordVerificationText = view.findViewById(R.id.db_password_verification) as EditText
-        passwordVerificationLabel = view.findViewById(R.id.verify_password_label) as TextView
-        dismissButton!!.setOnClickListener(dismissClickListener)
+        dismiss_password_button!!.setOnClickListener(dismissClickListener)
         //editText.requestFocus();
         dialog.window!!.requestFeature(Window.FEATURE_NO_TITLE)
         //getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         if (hasRemoteFile) {
-            passwordVerificationLabel!!.visibility = View.GONE
-            passwordVerificationText!!.visibility = View.GONE
+            verify_password_label!!.visibility = View.GONE
+            db_password_verification!!.visibility = View.GONE
         }
         return view
     }
 
     override fun onEditorAction(textView: TextView, i: Int, keyEvent: KeyEvent): Boolean {
         val activity = activity as DropboxFilePasswordListener
-        activity.onFinishPasswordDialog(editText!!.text.toString())
+        activity.onFinishPasswordDialog(this.db_password.text.toString())
         dialog.dismiss()
         return true
     }
 
     private val dismissClickListener = View.OnClickListener {
-        if (!hasRemoteFile && editText!!.text.toString() != passwordVerificationText!!.text.toString()) {
+        if (!hasRemoteFile && db_password!!.text.toString() != db_password_verification!!.text.toString()) {
             Toast.makeText(activity.applicationContext, R.string.passwords_does_not_match, Toast.LENGTH_SHORT).show()
         } else {
             val activity = activity as DropboxFilePasswordListener
-            activity.onFinishPasswordDialog(editText!!.text.toString())
+            activity.onFinishPasswordDialog(db_password!!.text.toString())
             dialog.dismiss()
         }
     }

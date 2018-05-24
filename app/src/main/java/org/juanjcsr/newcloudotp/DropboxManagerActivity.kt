@@ -18,6 +18,7 @@ import com.dropbox.core.v2.files.SearchResult
 import com.dropbox.core.v2.users.FullAccount
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.android.synthetic.main.activity_dropbox.*
 
 import org.juanjcsr.newcloudotp.config.AESStringCypher
 import org.juanjcsr.newcloudotp.config.AccessTokenRetriever
@@ -39,11 +40,8 @@ import java.util.HashMap
 
 class DropboxManagerActivity : Activity(), DropboxPasswordFragment.DropboxFilePasswordListener {
 
-    private var loginData: TextView? = null
     private var ACCESS_TOKEN: String? = null
     private var tokenManager: AccessTokenRetriever? = null
-    private var mSyncButton: Button? = null
-    private var mLoginButton: Button? = null
     private var prefs: SharedPreferences? = null
     private val dropboxClient: DropboxClient? = null
     private var mEncryptedFile: File? = null
@@ -55,14 +53,10 @@ class DropboxManagerActivity : Activity(), DropboxPasswordFragment.DropboxFilePa
 
         tokenManager = AccessTokenRetriever(applicationContext)
 
-        loginData = findViewById(R.id.current_user_label) as TextView
+        sync_token_button!!.setOnClickListener(mSyncButtonListener)
+        sync_token_button!!.visibility = View.INVISIBLE
 
-        mSyncButton = findViewById(R.id.sync_token_button) as Button
-        mSyncButton!!.setOnClickListener(mSyncButtonListener)
-        mSyncButton!!.visibility = View.INVISIBLE
-
-        mLoginButton = findViewById(R.id.sign_in_button) as Button
-        mLoginButton!!.setOnClickListener { Auth.startOAuth2Authentication(this, getString(R.string.DB_APP_KEY)) }
+        sign_in_button!!.setOnClickListener { Auth.startOAuth2Authentication(this, getString(R.string.DB_APP_KEY)) }
     }
 
     override fun onResume() {
@@ -109,7 +103,7 @@ class DropboxManagerActivity : Activity(), DropboxPasswordFragment.DropboxFilePa
                     hasRemoteFile = false
                 }
 
-                mSyncButton!!.visibility = View.VISIBLE
+                sync_token_button!!.visibility = View.VISIBLE
 
 
             }
@@ -145,8 +139,8 @@ class DropboxManagerActivity : Activity(), DropboxPasswordFragment.DropboxFilePa
                 //Log.d("User:", account.getEmail());
                 //Log.d("User:", account.getName().getDisplayName());
                 //Log.d("User:", account.getAccountType().name());
-                loginData!!.text = "Welcome: " + account.name.displayName
-                mLoginButton!!.visibility = View.GONE
+                current_user_label!!.text = "Welcome: " + account.name.displayName
+                sign_in_button!!.visibility = View.GONE
                 listDropboxFiles()
 
             }

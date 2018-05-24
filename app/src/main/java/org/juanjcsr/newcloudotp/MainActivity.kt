@@ -56,6 +56,7 @@ import android.view.View
 import android.view.WindowManager.LayoutParams
 import android.widget.GridView
 import android.widget.Toast
+import kotlinx.android.synthetic.main.main.*
 
 class MainActivity : Activity(), OnMenuItemClickListener {
     private var mTokenAdapter: TokenAdapter? = null
@@ -67,7 +68,7 @@ class MainActivity : Activity(), OnMenuItemClickListener {
         setContentView(R.layout.main)
 
         mTokenAdapter = TokenAdapter(this)
-        (findViewById(R.id.grid) as GridView).adapter = mTokenAdapter
+        grid.adapter = mTokenAdapter
 
         // Don't permit screenshots since these might contain OTP codes.
         window.setFlags(LayoutParams.FLAG_SECURE, LayoutParams.FLAG_SECURE)
@@ -76,9 +77,10 @@ class MainActivity : Activity(), OnMenuItemClickListener {
             override fun onChanged() {
                 super.onChanged()
                 if (mTokenAdapter!!.count == 0)
-                    findViewById(android.R.id.empty).visibility = View.VISIBLE
-                else
-                    findViewById(android.R.id.empty).visibility = View.GONE
+                    tv_empty.visibility = View.VISIBLE
+                else {
+                    tv_empty.visibility = View.INVISIBLE
+                }
             }
         }
         mTokenAdapter!!.registerDataSetObserver(mDataSetObserver)
@@ -112,7 +114,6 @@ class MainActivity : Activity(), OnMenuItemClickListener {
     fun requestCameraPermission(thisActivity: Activity, permission: String, code: Int) {
         if (ContextCompat.checkSelfPermission(thisActivity, permission) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity, permission)) {
-
             } else {
                 ActivityCompat.requestPermissions(thisActivity, arrayOf(permission), code)
             }

@@ -60,15 +60,15 @@ class AboutActivity : Activity() {
 
         val lwebsite = res.getString(R.string.link_website)
         val swebsite = res.getString(R.string.about_website, lwebsite)
-        tv = findViewById(R.id.about_website) as TextView
-        tv.movementMethod = LinkMovementMethod.getInstance()
-        tv.text = Html.fromHtml(swebsite)
+//        tv = findViewById(R.id.about_website) as TextView
+        about_website.movementMethod = LinkMovementMethod.getInstance()
+        about_website.text = Html.fromHtml(swebsite)
 
         val problem = res.getString(R.string.link_report_a_problem)
         val help = res.getString(R.string.link_ask_for_help)
         val feedback = res.getString(R.string.about_feedback, problem, help)
-        tv = findViewById(R.id.about_feedback) as TextView
-        tv.movementMethod = LinkMovementMethod.getInstance()
-        tv.text = Html.fromHtml(feedback)
+//        about_feedback = findViewById(R.id.about_feedback) as TextView
+        about_feedback.movementMethod = LinkMovementMethod.getInstance()
+        about_feedback.text = Html.fromHtml(feedback)
     }
 }
