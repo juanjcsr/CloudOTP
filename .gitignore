@@ -35,3 +35,6 @@ Thumbs.db
 .idea/dataSources.ids
 .idea/libraries/
 *.iml
+**.idea/**
+.idea/
+gradle.properties

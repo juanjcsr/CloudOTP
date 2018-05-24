@@ -28,6 +28,7 @@ import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
+import kotlinx.android.synthetic.main.about.*
 
 class AboutActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,17 +46,17 @@ class AboutActivity : Activity() {
             val pm = packageManager
             val info = pm.getPackageInfo(packageName, 0)
             val version = res.getString(R.string.about_version, info.versionName, info.versionCode)
-            tv = findViewById(R.id.about_version) as TextView
-            tv.text = version
+//            tv = findViewById(R.id.about_version) as TextView
+            about_version.text = version
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
 
         val apache2 = res.getString(R.string.link_apache2)
         val license = res.getString(R.string.about_license, apache2)
-        tv = findViewById(R.id.about_license) as TextView
-        tv.movementMethod = LinkMovementMethod.getInstance()
-        tv.text = Html.fromHtml(license)
+//        tv = findViewById(R.id.about_license) as TextView
+        about_license.movementMethod = LinkMovementMethod.getInstance()
+        about_license.text = Html.fromHtml(license)
 
         val lwebsite = res.getString(R.string.link_website)
         val swebsite = res.getString(R.string.about_website, lwebsite)
